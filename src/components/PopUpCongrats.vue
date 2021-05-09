@@ -1,14 +1,18 @@
 <template>
   <div v-show="showed" class="pop-up">
     <div class="backdrop"></div>
-    <div class="content"></div>
+    <div class="content popup-congrats">
+      <button class="btn red-button" @click.prevent="clickInicio">
+        <div class="text t22">Início</div>
+      </button>
+    </div>
   </div>
 </template>
 
 <script>
 import { fadeOut, fromTop } from '../assets/animate'
 export default {
-  name: 'PopUpOpcoes',
+  name: 'PopUpCongrats',
   props: {
     isShowed: {
       type: Boolean,
@@ -41,6 +45,9 @@ export default {
   methods: {
     showAnimation() {
       fromTop(this.$el.lastChild)
+    },
+    clickInicio() {
+      this.$emit('inicio')
     }
   }
 }
@@ -63,13 +70,19 @@ export default {
 
   .backdrop {
     position: absolute;
-    background-color: #00000070;
+    background-color: #00000090;
     width: 100%;
     height: 100%;
   }
 
   .content {
-    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .red-button {
+      position: absolute;
+      bottom: -80px;
+    }
   }
 }
 </style>

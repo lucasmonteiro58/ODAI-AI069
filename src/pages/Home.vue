@@ -2,75 +2,115 @@
   <section class="container">
     <div class="logo-game logo"></div>
     <div class="left-content">
-      <button class="btn ajuda btn-ajuda">
+      <button class="btn ajuda btn-ajuda" @click.prevent="clickOpenHelp">
         <div class="icon ico-ajuda"></div>
         <div class="text t15">Ajuda</div>
       </button>
       <div class="btn-section-controls">
-        <button class="btn primary">
+        <button class="btn primary" @click.prevent="clickInicio">
           <div class="icon ico-inicio"></div>
           <div class="text t11">Início</div>
         </button>
-        <button class="btn primary">
+        <button class="btn primary" @click.prevent="clickReiniciar">
           <div class="icon ico-reiniciar"></div>
           <div class="text t9">Reiniciar</div>
         </button>
-        <button class="btn primary">
-          <div class="icon ico-som-on"></div>
+        <button class="btn primary z10" @click.prevent="toogleSound">
+          <div class="icon" :class="soundClass"></div>
           <div class="text">Som</div>
         </button>
-        <button class="btn primary">
+        <button class="btn primary z10">
           <div class="icon ico-creditos"></div>
           <div class="text t9">Créditos</div>
         </button>
       </div>
     </div>
     <div class="center-content">
-      <div class="pontuation">
+      <div v-show="showCenter" class="pontuation">
         <div class="sup">{{ questions[index].fracao.top }}</div>
         <div class="bar"></div>
         <div class="inf">{{ questions[index].fracao.bottom }}</div>
       </div>
-      <div class="stage-interation">
+      <div v-show="showCenter" class="stage-interation">
+        <div v-if="showResposta" :class="classResposta"></div>
         <div
+          v-else
           class="paper-change"
           :class="classPaper"
+          @click.prevent="changeActualPaperIndex"
           @mouseenter="hoverPaper"
           @mouseout="outPaper"
         ></div>
       </div>
-      <button class="btn red-button">
+      <button
+        v-show="showCenter"
+        class="btn red-button"
+        @click.prevent="clickConfirmar"
+      >
         <div class="text t11">Confirmar</div>
       </button>
     </div>
     <div class="right-content">
       <div class="pontos">
         <div class="title t15">Pontos</div>
-        <div class="qnt t30">00</div>
+        <div class="qnt t30">{{ textPontuation }}</div>
       </div>
       <div class="btn-letters-section">
         <div
           v-for="q in questions"
           :key="q.id"
           :class="{ selected: q.selected, completed: q.completed }"
-          @click="changeActualQuestion(q)"
+          @click.prevent="changeActualQuestion(q)"
         >
           <span v-if="q.completed" class="checkiconecerto"></span>
           {{ q.letra }}
         </div>
       </div>
     </div>
+    <PopUpFeedback
+      v-if="showPopUpFeedback"
+      :is-showed="showPopUpFeedback"
+      :is-correct="feedbackCorrect"
+      @continuar="clickContinuarPopUp"
+      @voltar="clickVoltarPopUp"
+    ></PopUpFeedback>
+    <PopUpCongrats
+      v-if="showPopUpCongrats"
+      :is-showed="showPopUpCongrats"
+      @inicio="clickInicio"
+    ></PopUpCongrats>
+    <Help
+      v-if="showHelp"
+      :index="indexHelp"
+      @voltar="clickVoltarHelp"
+      @close="clickCloseHelp"
+      @avancar="clickAvancarHelp"
+    ></Help>
+    <Inicio v-if="showInicio" @iniciar="clickIniciar"></Inicio>
   </section>
 </template>
 <script>
+import PopUpCongrats from '../components/PopUpCongrats.vue'
+import PopUpFeedback from '../components/PopUpFeedback.vue'
+import Inicio from '../components/Inicio.vue'
 import { questions } from '../consts/home'
 export default {
+  components: { PopUpFeedback, PopUpCongrats, Inicio },
   data() {
     return {
       isHoverPaper: false,
       actualPaperIndex: 0,
+      showPopUpFeedback: false,
+      showPopUpCongrats: false,
+      feedbackCorrect: false,
+      showInicio: false,
+      showCenter: true,
+      showResposta: false,
       questions,
-      index: 0
+      index: 0,
+      pontuation: 0,
+      indexHelp: 0,
+      showHelp: true
     }
   },
   computed: {
@@ -78,24 +118,142 @@ export default {
       if (this.isHoverPaper) return this.actualPaper + '-hover'
       else return this.actualPaper
     },
+    textPontuation() {
+      if (this.pontuation < 9) {
+        return '0' + this.pontuation
+      } else return this.pontuation
+    },
+    classResposta() {
+      return 'resposta' + this.actualPaperIndex
+    },
     actualPaper() {
       if (this.actualPaperIndex === 0) return 'paginainteira'
       else if (this.actualPaperIndex === 1) return 'paginametade'
       else if (this.actualPaperIndex === 2) return 'paginaquarto'
       else if (this.actualPaperIndex === 3) return 'paginaoitavo'
       else return 'paginainteira'
+    },
+    soundState() {
+      return this.$store.state.soundState
+    },
+    soundClass() {
+      if (this.soundState) return 'ico-som-on'
+      else return 'ico-sound-off'
     }
   },
   methods: {
+    clickVoltarHelp() {
+      this.indexHelp--
+    },
+    clickCloseHelp() {
+      this.indexHelp = 0
+      this.showHelp = false
+    },
+    clickOpenHelp() {
+      this.showHelp = true
+    },
+    clickAvancarHelp() {
+      if (this.indexHelp === 2) {
+        this.showHelp = false
+        this.indexHelp = 0
+      } else {
+        this.indexHelp++
+      }
+    },
     hoverPaper() {
       this.isHoverPaper = true
+    },
+    clickIniciar() {
+      this.showInicio = false
     },
     outPaper() {
       this.isHoverPaper = false
     },
+    changeActualPaperIndex() {
+      if (this.actualPaperIndex < 3) {
+        this.actualPaperIndex++
+      } else {
+        this.actualPaperIndex = 0
+      }
+    },
     changeActualQuestion(q) {
       this.index = q.id
+      this.actualPaperIndex = 0
+      this.deselectAll()
       q.selected = true
+    },
+    deselectAll() {
+      // nao colocar som
+      for (let i = 0; i < this.questions.length; i++) {
+        this.questions[i].selected = false
+      }
+    },
+    toogleSound() {
+      this.$store.commit('changeSoundState', !this.soundState)
+    },
+    openPopUpFeedback() {
+      this.showPopUpFeedback = true
+    },
+    clickContinuarPopUp() {
+      this.showPopUpFeedback = false
+      this.showResposta = false
+      this.getNextQuestion()
+    },
+    clickVoltarPopUp() {
+      this.showPopUpFeedback = false
+      this.showResposta = false
+    },
+    clickConfirmar() {
+      this.showResposta = true
+      setTimeout(() => {
+        if (this.actualPaperIndex === questions[this.index].correct) {
+          // corect
+          this.feedbackCorrect = true
+          this.pontuation = this.pontuation + 10
+          this.questions[this.index].completed = true
+          this.openPopUpFeedback()
+        } else {
+          this.feedbackCorrect = false
+          this.openPopUpFeedback()
+        }
+      }, 1000)
+    },
+    getNextQuestion() {
+      // nao colocar som aqui
+      const next = this.questions.filter((el) => el.completed === false)
+      if (next[0]) {
+        this.changeActualQuestion(next[0])
+      } else {
+        this.openPopUpCongrast()
+      }
+    },
+    resetAll() {
+      this.deselectAll()
+      for (let i = 0; i < this.questions.length; i++) {
+        this.questions[i].completed = false
+      }
+      this.actualPaperIndex = 0
+      this.showPopUpFeedback = false
+      this.showPopUpCongrats = false
+      this.feedbackCorrect = false
+      this.showCenter = true
+      this.showResposta = false
+      this.index = 0
+      this.pontuation = 0
+      this.indexHelp = 0
+    },
+    clickInicio() {
+      this.showPopUpCongrats = false
+      this.showCenter = true
+      this.resetAll()
+      this.showInicio = true
+    },
+    openPopUpCongrast() {
+      this.showPopUpCongrats = true
+      this.showCenter = false
+    },
+    clickReiniciar() {
+      this.resetAll()
     }
   }
 }
@@ -108,7 +266,7 @@ export default {
 
   .logo-game {
     position: absolute;
-    left: 40px;
+    left: 30px;
     top: 40px;
   }
 
@@ -116,7 +274,8 @@ export default {
     width: 141px;
 
     .btn-ajuda {
-      margin-bottom: 123px;
+      margin-bottom: 110px;
+      margin-top: 100px;
     }
   }
 
