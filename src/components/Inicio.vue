@@ -32,7 +32,7 @@ export default {
     left: 0;
     .iniciar-btn {
       position: absolute;
-      bottom: 75px;
+      bottom: 68px;
     }
   }
 }

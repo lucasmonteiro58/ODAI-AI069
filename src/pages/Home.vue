@@ -2,31 +2,55 @@
   <section class="container">
     <div class="logo-game logo"></div>
     <div class="left-content">
-      <button class="btn ajuda btn-ajuda" @click.prevent="clickOpenHelp">
+      <button
+        class="btn ajuda btn-ajuda"
+        :class="'index-help' + indexHelp"
+        @click.prevent="clickOpenHelp"
+      >
         <div class="icon ico-ajuda"></div>
         <div class="text t15">Ajuda</div>
       </button>
       <div class="btn-section-controls">
-        <button class="btn primary" @click.prevent="clickInicio">
+        <button
+          class="btn primary btns-zindex"
+          :class="'index-help' + indexHelp"
+          @click.prevent="clickInicio"
+        >
           <div class="icon ico-inicio"></div>
           <div class="text t11">Início</div>
         </button>
-        <button class="btn primary" @click.prevent="clickReiniciar">
+        <button
+          class="btn primary btns-zindex"
+          :class="'index-help' + indexHelp"
+          @click.prevent="clickReiniciar"
+        >
           <div class="icon ico-reiniciar"></div>
           <div class="text t9">Reiniciar</div>
         </button>
-        <button class="btn primary z10" @click.prevent="toogleSound">
+        <button
+          class="btn primary z10 btns-zindex"
+          :class="'index-help' + indexHelp"
+          @click.prevent="toogleSound"
+        >
           <div class="icon" :class="soundClass"></div>
           <div class="text">Som</div>
         </button>
-        <button class="btn primary z10">
+        <button
+          class="btn primary z10 btns-zindex"
+          :class="'index-help' + indexHelp"
+          @click.prevent="openCreditos"
+        >
           <div class="icon ico-creditos"></div>
           <div class="text t9">Créditos</div>
         </button>
       </div>
     </div>
     <div class="center-content">
-      <div v-show="showCenter" class="pontuation">
+      <div
+        v-show="showCenter"
+        class="pontuation"
+        :class="'index-help' + indexHelp"
+      >
         <div class="sup">{{ questions[index].fracao.top }}</div>
         <div class="bar"></div>
         <div class="inf">{{ questions[index].fracao.bottom }}</div>
@@ -36,7 +60,7 @@
         <div
           v-else
           class="paper-change"
-          :class="classPaper"
+          :class="['index-help' + indexHelp, classPaper]"
           @click.prevent="changeActualPaperIndex"
           @mouseenter="hoverPaper"
           @mouseout="outPaper"
@@ -44,14 +68,15 @@
       </div>
       <button
         v-show="showCenter"
-        class="btn red-button"
+        class="btn red-button btn-confirmar"
+        :class="'index-help' + indexHelp"
         @click.prevent="clickConfirmar"
       >
         <div class="text t11">Confirmar</div>
       </button>
     </div>
     <div class="right-content">
-      <div class="pontos">
+      <div class="pontos" :class="'index-help' + indexHelp">
         <div class="title t15">Pontos</div>
         <div class="qnt t30">{{ textPontuation }}</div>
       </div>
@@ -82,11 +107,17 @@
     <Help
       v-if="showHelp"
       :index="indexHelp"
+      :is-inicial="isInicialHelp"
       @voltar="clickVoltarHelp"
       @close="clickCloseHelp"
       @avancar="clickAvancarHelp"
     ></Help>
     <Inicio v-if="showInicio" @iniciar="clickIniciar"></Inicio>
+    <PopUpCreditos
+      v-if="showCreditos"
+      :is-showed="showCreditos"
+      @close="closeCreditos"
+    ></PopUpCreditos>
   </section>
 </template>
 <script>
@@ -94,8 +125,11 @@ import PopUpCongrats from '../components/PopUpCongrats.vue'
 import PopUpFeedback from '../components/PopUpFeedback.vue'
 import Inicio from '../components/Inicio.vue'
 import { questions } from '../consts/home'
+import audios from '../mixins/audios'
+import PopUpCreditos from '../components/PopUpCreditos.vue'
 export default {
-  components: { PopUpFeedback, PopUpCongrats, Inicio },
+  components: { PopUpFeedback, PopUpCongrats, Inicio, PopUpCreditos },
+  mixins: [audios],
   data() {
     return {
       isHoverPaper: false,
@@ -103,14 +137,17 @@ export default {
       showPopUpFeedback: false,
       showPopUpCongrats: false,
       feedbackCorrect: false,
-      showInicio: false,
+      showInicio: true,
       showCenter: true,
       showResposta: false,
       questions,
       index: 0,
       pontuation: 0,
       indexHelp: 0,
-      showHelp: true
+      showHelp: false,
+      preventClickConfirma: true,
+      isInicialHelp: true,
+      showCreditos: false
     }
   },
   computed: {
@@ -144,18 +181,33 @@ export default {
   methods: {
     clickVoltarHelp() {
       this.indexHelp--
+      this.audioClickPlay()
+    },
+    closeCreditos() {
+      this.showCreditos = false
+      this.audioClickPlay()
+    },
+    openCreditos() {
+      this.showCreditos = true
+      this.audioClickPlay()
     },
     clickCloseHelp() {
       this.indexHelp = 0
       this.showHelp = false
+      this.isInicialHelp = false
+      this.audioClickPlay()
     },
     clickOpenHelp() {
       this.showHelp = true
+      this.actualPaperIndex = 0
+      this.audioClickPlay()
     },
     clickAvancarHelp() {
+      this.audioClickPlay()
       if (this.indexHelp === 2) {
         this.showHelp = false
         this.indexHelp = 0
+        this.isInicialHelp = false
       } else {
         this.indexHelp++
       }
@@ -164,19 +216,30 @@ export default {
       this.isHoverPaper = true
     },
     clickIniciar() {
+      // nao por som
       this.showInicio = false
+      this.showHelp = true
+      this.changeActualQuestion(this.questions[this.index])
     },
     outPaper() {
       this.isHoverPaper = false
     },
     changeActualPaperIndex() {
+      this.playSongPaper()
       if (this.actualPaperIndex < 3) {
         this.actualPaperIndex++
       } else {
         this.actualPaperIndex = 0
       }
     },
+    playSongPaper() {
+      if (this.actualPaperIndex === 0) this.audioDobra0play()
+      else if (this.actualPaperIndex === 1) this.audioDobra1play()
+      else if (this.actualPaperIndex === 2) this.audioDobra2play()
+      else if (this.actualPaperIndex === 3) this.audioDobra3play()
+    },
     changeActualQuestion(q) {
+      this.audioClickPlay()
       this.index = q.id
       this.actualPaperIndex = 0
       this.deselectAll()
@@ -190,33 +253,45 @@ export default {
     },
     toogleSound() {
       this.$store.commit('changeSoundState', !this.soundState)
+      this.audioClickPlay()
     },
     openPopUpFeedback() {
+      // nao por som
       this.showPopUpFeedback = true
     },
     clickContinuarPopUp() {
+      this.audioClickPlay()
       this.showPopUpFeedback = false
       this.showResposta = false
       this.getNextQuestion()
     },
     clickVoltarPopUp() {
+      this.audioClickPlay()
       this.showPopUpFeedback = false
       this.showResposta = false
     },
     clickConfirmar() {
-      this.showResposta = true
-      setTimeout(() => {
-        if (this.actualPaperIndex === questions[this.index].correct) {
-          // corect
-          this.feedbackCorrect = true
-          this.pontuation = this.pontuation + 10
-          this.questions[this.index].completed = true
-          this.openPopUpFeedback()
-        } else {
-          this.feedbackCorrect = false
-          this.openPopUpFeedback()
-        }
-      }, 1000)
+      if (this.preventClickConfirma) {
+        this.showResposta = true
+        this.audioClickPlay()
+        this.preventClickConfirma = false
+        setTimeout(() => {
+          if (this.actualPaperIndex === questions[this.index].correct) {
+            // corect
+            this.feedbackCorrect = true
+            this.pontuation = this.pontuation + 10
+            this.questions[this.index].completed = true
+            this.openPopUpFeedback()
+            this.audioCorretoPlay()
+            this.preventClickConfirma = true
+          } else {
+            this.feedbackCorrect = false
+            this.openPopUpFeedback()
+            this.audioErradoPlay()
+            this.preventClickConfirma = true
+          }
+        }, 1000)
+      }
     },
     getNextQuestion() {
       // nao colocar som aqui
@@ -228,6 +303,7 @@ export default {
       }
     },
     resetAll() {
+      // nao por som
       this.deselectAll()
       for (let i = 0; i < this.questions.length; i++) {
         this.questions[i].completed = false
@@ -243,6 +319,8 @@ export default {
       this.indexHelp = 0
     },
     clickInicio() {
+      this.audioFinalStop()
+      this.audioClickPlay()
       this.showPopUpCongrats = false
       this.showCenter = true
       this.resetAll()
@@ -251,9 +329,13 @@ export default {
     openPopUpCongrast() {
       this.showPopUpCongrats = true
       this.showCenter = false
+      this.audioFinalPlay()
     },
     clickReiniciar() {
+      // nao por som
       this.resetAll()
+      this.isInicialHelp = true
+      this.changeActualQuestion(this.questions[this.index])
     }
   }
 }
@@ -276,6 +358,11 @@ export default {
     .btn-ajuda {
       margin-bottom: 110px;
       margin-top: 100px;
+      position: relative;
+
+      &.index-help2 {
+        z-index: 30;
+      }
     }
   }
 
@@ -292,6 +379,10 @@ export default {
       border-radius: 50%;
       background-color: #a8dadc;
       position: relative;
+
+      &.index-help1 {
+        z-index: 30;
+      }
 
       div {
         font-size: 51px;
@@ -329,6 +420,10 @@ export default {
 
       .paper-change {
         cursor: pointer;
+
+        &.index-help1 {
+          z-index: 30;
+        }
       }
     }
   }
@@ -354,6 +449,11 @@ export default {
 
       .qnt {
         margin-top: -5px;
+      }
+
+      &.index-help1 {
+        z-index: 30;
+        position: relative;
       }
     }
 
@@ -412,6 +512,19 @@ export default {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
     gap: 21px;
+    position: relative;
+  }
+}
+
+.btn-confirmar {
+  &.index-help1 {
+    z-index: 30;
+  }
+}
+
+.btns-zindex {
+  &.index-help2 {
+    z-index: 30;
   }
 }
 </style>

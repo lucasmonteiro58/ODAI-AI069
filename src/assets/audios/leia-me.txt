@@ -1,0 +1,13 @@
+click -> clicar em qualquer botão, incluindo confirmar.
+
+correto -> quando aparece o popup de acerto
+
+desdobra -> após confirmar, quando o app mostra o papel subdividido. obs: se possível fazer animado. Se não houve dobra, não tocar este som.
+
+dobra0-3 -> em ordem, sons ao usuário clicar no papel. 0: metade, 1: quarto, 2: oitavo, 3: volta ao inicio.
+
+errado -> ao aparecer o popup de erro
+
+final -> toca junto ao popup final, da medalha
+
+mouseenter -> toca com o mouse hover em botões
