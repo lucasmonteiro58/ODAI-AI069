@@ -118,20 +118,23 @@ button:focus {
 }
 
 @font-face {
-  font-family: Confortaa;
-  src: url('../fonts/Comfortaa-VariableFont_wght.ttf');
+  font-family: Galindo;
+  src: url('../fonts/Galindo-Regular.ttf');
+}
+
+@font-face {
+  font-family: Rosario;
+  src: url('../fonts/Rosario-VariableFont_wght.ttf');
 }
 
 * {
-  font-family: Confortaa;
-  color: #282828;
+  font-family: Galindo;
+  color: #f1faee;
   text-transform: uppercase;
-  font-size: 13px;
-  font-weight: 1000;
+  font-size: 11px;
 }
 
 b {
-  font-family: Confortaa;
+  font-family: Galindo;
   color: #007ec4;
-  font-weight: 1000;
 }

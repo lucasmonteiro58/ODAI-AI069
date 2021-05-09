@@ -9,24 +9,36 @@ body {
   align-items: center;
   justify-content: flex-end;
   gap: 6px;
-  box-shadow: 5px 4px 7px rgba(0, 0, 0, 0.25);
+
+  &:hover {
+    box-shadow: 5px 4px 7px rgba(0, 0, 0, 0.25);
+  }
   &.primary {
-    background-color: #f7c044;
-    width: 69px;
+    background-color: #5c94b7;
+    width: 60px;
     height: 67px;
     .text {
       margin-bottom: 2px;
     }
-    .iconeajuda {
-      transform: scale(0.9);
-    }
-    &:hover {
-      background-color: #fcecc6;
+  }
 
-      .text,
-      .icon {
-        opacity: 0.5;
-      }
+  &.ajuda {
+    background-color: #5c94b7;
+    width: 141px;
+    height: 67px;
+    justify-content: center;
+    .text {
+      margin-bottom: 2px;
+    }
+  }
+
+  &.red-button {
+    background-color: #e63946;
+    width: 221px;
+    height: 70px;
+    justify-content: center;
+    .text {
+      font-size: 29px;
     }
   }
 }
