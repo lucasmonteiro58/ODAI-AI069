@@ -8,7 +8,8 @@ export const questions = [
     },
     correct: 2,
     selected: true,
-    completed: false
+    completed: false,
+    classResposta: 'resposta2'
   },
   {
     id: 1,
@@ -19,7 +20,8 @@ export const questions = [
     },
     correct: 1,
     selected: false,
-    completed: false
+    completed: false,
+    classResposta: 'resposta1'
   },
   {
     id: 2,
@@ -30,6 +32,7 @@ export const questions = [
     },
     correct: 3,
     selected: false,
-    completed: false
+    completed: false,
+    classResposta: 'resposta3'
   }
 ]

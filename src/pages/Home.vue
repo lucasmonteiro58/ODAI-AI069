@@ -56,7 +56,10 @@
         <div class="inf">{{ questions[index].fracao.bottom }}</div>
       </div>
       <div v-show="showCenter" class="stage-interation">
-        <div v-if="showResposta" :class="classResposta"></div>
+        <div
+          v-if="showResposta || questions[index].completed"
+          :class="classResposta"
+        ></div>
         <div
           v-else
           class="paper-change"
@@ -68,6 +71,7 @@
       </div>
       <button
         v-show="showCenter"
+        :disabled="questions[index].completed"
         class="btn red-button btn-confirmar"
         :class="'index-help' + indexHelp"
         @click.prevent="clickConfirmar"
@@ -161,7 +165,9 @@ export default {
       } else return this.pontuation
     },
     classResposta() {
-      return 'resposta' + this.actualPaperIndex
+      if (this.questions[this.index].completed)
+        return this.questions[this.index].classResposta
+      else return 'resposta' + this.actualPaperIndex
     },
     actualPaper() {
       if (this.actualPaperIndex === 0) return 'paginainteira'
@@ -239,11 +245,13 @@ export default {
       else if (this.actualPaperIndex === 3) this.audioDobra3play()
     },
     changeActualQuestion(q) {
+      // if (!q.completed) {
       this.audioClickPlay()
       this.index = q.id
       this.actualPaperIndex = 0
       this.deselectAll()
       q.selected = true
+      // }
     },
     deselectAll() {
       // nao colocar som
@@ -317,6 +325,7 @@ export default {
       this.index = 0
       this.pontuation = 0
       this.indexHelp = 0
+      this.isInicialHelp = true
     },
     clickInicio() {
       this.audioFinalStop()
@@ -517,6 +526,13 @@ export default {
 }
 
 .btn-confirmar {
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    &:hover {
+      box-shadow: none;
+    }
+  }
   &.index-help1 {
     z-index: 30;
   }
