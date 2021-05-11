@@ -31,7 +31,7 @@ export default {
     timerExec() {
       if (this.index === 3) return 300
       else if (this.index === 2) return 400
-      else if (this.index === 1) return 500
+      else if (this.index === 1) return 600
       else return 1000
     }
   },
