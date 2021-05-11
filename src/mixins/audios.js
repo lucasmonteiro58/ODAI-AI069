@@ -9,6 +9,7 @@ import errado from '../assets/audios/errado.wav'
 import final from '../assets/audios/final.wav'
 import mouseenter from '../assets/audios/mouseenter.wav'
 import correto from '../assets/audios/correto.wav'
+import desdobra from '../assets/audios/desdobra.wav'
 
 const audios = {
   setup() {
@@ -21,6 +22,7 @@ const audios = {
     const audioDobra3 = useSound(dobra3)
     const audioFinal = useSound(final)
     const audioMouseEnter = useSound(mouseenter)
+    const audioDesdobra = useSound(desdobra)
 
     return {
       audioClick,
@@ -31,7 +33,8 @@ const audios = {
       audioErrado,
       audioFinal,
       audioMouseEnter,
-      audioCorreto
+      audioCorreto,
+      audioDesdobra
     }
   },
   methods: {
@@ -42,6 +45,9 @@ const audios = {
       setTimeout(() => {
         if (this.soundState) this.audioCorreto.play()
       }, 500)
+    },
+    audioDesdobraPlay() {
+      if (this.soundState) this.audioDesdobra.play()
     },
     audioErradoPlay() {
       setTimeout(() => {

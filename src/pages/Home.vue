@@ -69,9 +69,15 @@
           @mouseout="outPaper"
         ></div>
       </div>
+      <Animacao
+        v-if="showAnimacao"
+        class="animation-position"
+        :index="actualPaperIndex"
+        @close="closeAnimacao"
+      ></Animacao>
       <button
         v-show="showCenter"
-        :disabled="questions[index].completed"
+        :disabled="questions[index].completed || !preventClickConfirma"
         class="btn red-button btn-confirmar"
         :class="'index-help' + indexHelp"
         @click.prevent="clickConfirmar"
@@ -128,11 +134,12 @@
 import PopUpCongrats from '../components/PopUpCongrats.vue'
 import PopUpFeedback from '../components/PopUpFeedback.vue'
 import Inicio from '../components/Inicio.vue'
+import Animacao from '../components/Animacao.vue'
 import { questions } from '../consts/home'
 import audios from '../mixins/audios'
 import PopUpCreditos from '../components/PopUpCreditos.vue'
 export default {
-  components: { PopUpFeedback, PopUpCongrats, Inicio, PopUpCreditos },
+  components: { PopUpFeedback, PopUpCongrats, Inicio, PopUpCreditos, Animacao },
   mixins: [audios],
   data() {
     return {
@@ -151,7 +158,8 @@ export default {
       showHelp: false,
       preventClickConfirma: true,
       isInicialHelp: true,
-      showCreditos: false
+      showCreditos: false,
+      showAnimacao: false
     }
   },
   computed: {
@@ -185,6 +193,12 @@ export default {
     }
   },
   methods: {
+    closeAnimacao() {
+      this.showAnimacao = false
+    },
+    openAnimacao() {
+      this.showAnimacao = true
+    },
     clickVoltarHelp() {
       this.indexHelp--
       this.audioClickPlay()
@@ -277,28 +291,53 @@ export default {
       this.audioClickPlay()
       this.showPopUpFeedback = false
       this.showResposta = false
+      this.actualPaperIndex = 0
     },
     clickConfirmar() {
       if (this.preventClickConfirma) {
-        this.showResposta = true
         this.audioClickPlay()
         this.preventClickConfirma = false
-        setTimeout(() => {
-          if (this.actualPaperIndex === questions[this.index].correct) {
-            // corect
-            this.feedbackCorrect = true
-            this.pontuation = this.pontuation + 10
-            this.questions[this.index].completed = true
-            this.openPopUpFeedback()
-            this.audioCorretoPlay()
-            this.preventClickConfirma = true
-          } else {
-            this.feedbackCorrect = false
-            this.openPopUpFeedback()
-            this.audioErradoPlay()
-            this.preventClickConfirma = true
-          }
-        }, 1000)
+        if (this.actualPaperIndex > 0) {
+          this.openAnimacao()
+          this.audioDesdobraPlay()
+          setTimeout(() => {
+            this.showResposta = true
+            setTimeout(() => {
+              if (this.actualPaperIndex === questions[this.index].correct) {
+                // corect
+                this.feedbackCorrect = true
+                this.pontuation = this.pontuation + 10
+                this.questions[this.index].completed = true
+                this.openPopUpFeedback()
+                this.audioCorretoPlay()
+                this.preventClickConfirma = true
+              } else {
+                this.feedbackCorrect = false
+                this.openPopUpFeedback()
+                this.audioErradoPlay()
+                this.preventClickConfirma = true
+              }
+            }, 1300)
+          }, 1000)
+        } else {
+          this.showResposta = true
+          setTimeout(() => {
+            if (this.actualPaperIndex === questions[this.index].correct) {
+              // corect
+              this.feedbackCorrect = true
+              this.pontuation = this.pontuation + 10
+              this.questions[this.index].completed = true
+              this.openPopUpFeedback()
+              this.audioCorretoPlay()
+              this.preventClickConfirma = true
+            } else {
+              this.feedbackCorrect = false
+              this.openPopUpFeedback()
+              this.audioErradoPlay()
+              this.preventClickConfirma = true
+            }
+          }, 1000)
+        }
       }
     },
     getNextQuestion() {
@@ -542,5 +581,11 @@ export default {
   &.index-help2 {
     z-index: 30;
   }
+}
+
+.animation-position {
+  position: absolute;
+  top: 214px;
+  left: 198px;
 }
 </style>
